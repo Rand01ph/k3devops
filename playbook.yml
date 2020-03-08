@@ -21,12 +21,7 @@
     - "k3d"
   vars:
     ansible_python_interpreter: "/usr/bin/env python2"
-    proxy_env:
-      http_proxy: http://192.168.1.102:8118
-      https_proxy: http://192.168.1.102:8118
 
   tasks:
     - include_role:
         name: "k3devops"
-        apply:
-          environment: "{{ proxy_env }}"

@@ -1,0 +1,52 @@
+global-variables:
+  project_version: &project_version 87810
+
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: docker
+  image: plugins/docker
+  settings:
+    repo: registry.local:5000/go-example
+    registry: registry.local:5000
+    insecure: true
+    cache_from: "registry.local:5000/go-example"
+    tags:
+      - *project_version
+      - latest
+
+- name: deploy-dev
+  image: cuisongliu/drone-kube
+  settings:
+    server:
+      from_secret: k8s-dev-server
+    ca:
+      from_secret: k8s-dev-ca
+    admin:
+      from_secret: k8s-dev-admin
+    admin_key:
+     from_secret: k8s-dev-admin-key
+    template_image_version: *project_version
+  commands:
+    - drone-kube config
+    - drone-kube template
+    - kubectl apply -f deploy/deploy.yaml
+
+- name: deploy-test
+  image: cuisongliu/drone-kube
+  settings:
+    server:
+      from_secret: k8s-test-server
+    ca:
+      from_secret: k8s-test-ca
+    admin:
+      from_secret: k8s-test-admin
+    admin_key:
+     from_secret: k8s-test-admin-key
+    template_image_version: *project_version
+  commands:
+    - drone-kube config
+    - drone-kube template
+    - kubectl apply -f deploy/test_deploy.yaml

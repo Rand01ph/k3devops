@@ -33,7 +33,7 @@
   register: myclusterstopped
 
 - name: create k3d with registry
-  command: k3d create --enable-registry --api-port localhost:6443 --server-arg --tls-san="127.0.0.1" --env https_proxy=http://192.168.1.102:8118
+  command: k3d create --enable-registry --api-port localhost:6443 --server-arg --tls-san="127.0.0.1"
   when:
     - myclusterrunning.rc != 0
     - myclusterstopped.rc != 0
