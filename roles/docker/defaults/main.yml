@@ -1,0 +1,16 @@
+---
+# defaults file for docker
+
+docker__users: ["{{ ansible_env.SUDO_USER | d('root') }}"]
+
+docker__default_daemon_json: |
+  "log-driver": "journald"
+
+docker__daemon_json: ""
+
+docker__daemon_flags:
+  - "-H unix://"
+
+docker__daemon_environment: []
+
+docker__systemd_override: ""

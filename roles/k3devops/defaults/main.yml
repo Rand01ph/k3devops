@@ -1,0 +1,14 @@
+---
+# defaults file for k3develops
+k3d_ver: v1.6.0
+k3d_mirror: https://github.com/rancher/k3d/releases/download
+k3d_os: linux
+k3d_arch: amd64
+k3d_install_dir: /usr/local/bin
+
+
+skaffold_ver: v1.5.0
+skaffold_mirror: https://github.com/GoogleContainerTools/skaffold/releases/download
+skaffold_os: linux
+skaffold_arch: amd64
+skaffold_install_dir: /usr/local/bin

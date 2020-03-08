@@ -1,0 +1,32 @@
+- name: Install Docker
+  hosts: all
+  become: true
+  tags:
+    - docker
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python2"
+
+  tasks:
+    - include_role:
+        name: "docker"
+      vars:
+        docker__daemon_json: |
+          "insecure-registry": ["registry.local:5000"],
+          "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn/"]
+
+- name: Install k3d
+  hosts: all
+  become: false
+  tags:
+    - "k3d"
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python2"
+    proxy_env:
+      http_proxy: http://192.168.1.102:8118
+      https_proxy: http://192.168.1.102:8118
+
+  tasks:
+    - include_role:
+        name: "k3devops"
+        apply:
+          environment: "{{ proxy_env }}"

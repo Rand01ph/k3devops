@@ -1,0 +1,5 @@
+[multipass]
+blithe-trumpetfish ansible_host=192.168.64.2 ansible_user=ubuntu
+
+[localhost]
+127.0.0.1 ansible_connection=local

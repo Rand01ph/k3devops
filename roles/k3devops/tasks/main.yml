@@ -1,0 +1,111 @@
+---
+# tasks file for k3develops
+- name: Download k3d binary
+  become: yes
+  become_user: root
+  get_url:
+    url: '{{ k3d_url }}'
+    dest: '{{ k3d_installed_exe }}'
+    mode: 0755
+
+- name: link k3d to PATH
+  become: yes
+  become_user: root
+  file:
+    src: '{{ k3d_installed_exe }}'
+    dest: '{{ k3d_link }}'
+    state: link
+
+- name: create k3d config dir
+  file:
+    path: ~/.config/k3d
+    state: directory
+    mode: 0755
+
+- name: check k3d cluster running
+  shell: k3d l | grep k3s-default | grep running
+  ignore_errors: yes
+  register: myclusterrunning
+
+- name: check k3d cluster stopped
+  shell: k3d l | grep k3s-default | grep stopped
+  ignore_errors: yes
+  register: myclusterstopped
+
+- name: create k3d with registry
+  command: k3d create --enable-registry --api-port localhost:6443 --server-arg --tls-san="127.0.0.1" --env https_proxy=http://192.168.1.102:8118
+  when:
+    - myclusterrunning.rc != 0
+    - myclusterstopped.rc != 0
+
+- name: start my cluster
+  command: k3d start k3s-default
+  when:
+    - myclusterstopped.rc == 0
+
+- name: check my cluster started
+  shell: k3d l | grep k3s-default | grep running
+  register: myclusterstarted
+  until: myclusterstarted.rc == 0
+  retries: 5
+  delay: 10
+
+- name: get my cluster config
+  command: k3d get-kubeconfig --overwrite
+  register: myclusterconfig
+
+- name:  Pushing to your local registry address
+  become: true
+  lineinfile:
+    path: /etc/hosts
+    line: 127.0.0.1 registry.local
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Add Kubernetes GPG apt Key
+  become: true
+  apt_key:
+    url: https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg
+    state: present
+
+- name: Add Kubernetes Repository
+  become: true
+  apt_repository:
+    repo: "deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main"
+    state: present
+
+- name: Update apt and install kubectl
+  become: true
+  apt:
+    update_cache: yes
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - kubectl
+
+- name: Make sure destination dir exists
+  file:
+    path: "~/.kube"
+    state: directory
+
+- name: Config KUBE_CONFIG
+  copy:
+    src: ~/.config/k3d/k3s-default/kubeconfig.yaml
+    dest: ~/.kube/config
+
+- name: Download skaffold binary
+  become: yes
+  become_user: root
+  get_url:
+    url: '{{ skaffold_url }}'
+    dest: '{{ skaffold_installed_exe }}'
+    mode: 0755
+
+- name: link skaffold to PATH
+  become: yes
+  become_user: root
+  file:
+    src: '{{ skaffold_installed_exe }}'
+    dest: '{{ skaffold_link }}'
+    state: link
