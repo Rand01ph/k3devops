@@ -1,0 +1,21 @@
+- name: Create Code Eaxmple
+  hosts: all
+  become: false
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python2"
+
+  vars_prompt:
+    - name: "project_dir"
+      prompt: "Set your dir where code example generated"
+      private: no
+
+    - name: "program"
+      prompt: "Choose One Program Languages For Example?\n1 - Golang\n"
+      private: no
+
+  tasks:
+    - set_fact: lang=golang
+      when: ( program == "1" )
+
+    - include_role:
+        name: "codexample"

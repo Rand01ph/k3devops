@@ -1,0 +1,28 @@
+---
+# tasks file for codexample
+- name: To Create Project Dir
+  file:
+    path: '{{ project_dir }}'
+    state: directory
+    mode: '0755'
+
+- name: To Gen Programs Languages Code Example
+  template:
+    src: '{{ item.src }}'
+    dest: '{{ project_dir }}/{{ item.path }}'
+    mode: '{{ item.mode }}'
+  with_filetree: '{{ lang }}'
+  when: item.state == 'file'
+
+- name: Initialized empty Git repository
+  command:
+    cmd: git init
+    chdir: '{{ project_dir }}'
+
+- name: Display Hot To Start
+  debug:
+    msg:
+    - 'Things left to do:'
+    - '- cd {{ project_dir }}'
+    - '- skaffold dev'
+    - 'enjoy !'

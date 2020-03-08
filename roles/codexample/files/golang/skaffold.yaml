@@ -1,0 +1,11 @@
+apiVersion: skaffold/v2alpha4
+kind: Config
+metadata:
+  name: k-devops
+build:
+  artifacts:
+  - image: registry.local:5000/go-example
+deploy:
+  kubectl:
+    manifests:
+    - k8s-pod.yaml
